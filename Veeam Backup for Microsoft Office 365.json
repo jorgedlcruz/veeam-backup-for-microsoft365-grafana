@@ -62,10 +62,10 @@
   },
   "description": "Veeam Backup for Microsoft Office 365 Dashboard",
   "editable": true,
-  "gnetId": null,
+  "gnetId": 9542,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1544955714058,
+  "iteration": 1544994504125,
   "links": [],
   "panels": [
     {
@@ -696,7 +696,7 @@
           ]
         }
       ],
-      "thresholds": "2,3",
+      "thresholds": "1.1,2.1",
       "title": "$job - Last Result",
       "transparent": false,
       "type": "singlestat",
@@ -2079,7 +2079,7 @@
     ]
   },
   "time": {
-    "from": "now-7d",
+    "from": "now-2d",
     "to": "now"
   },
   "timepicker": {
@@ -2110,5 +2110,5 @@
   "timezone": "browser",
   "title": "Veeam Backup for Microsoft Office 365",
   "uid": "s686QaPmk",
-  "version": 27
+  "version": 2
 }
