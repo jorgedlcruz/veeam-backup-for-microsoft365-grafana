@@ -65,7 +65,7 @@
   "gnetId": 9542,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1545406478583,
+  "iteration": 1545413226043,
   "links": [],
   "panels": [
     {
@@ -78,7 +78,7 @@
       },
       "id": 61,
       "panels": [],
-      "title": "VBO 365 - Overview",
+      "title": "Overview",
       "type": "row"
     },
     {
@@ -697,7 +697,7 @@
       },
       "id": 151,
       "panels": [],
-      "title": "VBO - Summaries",
+      "title": "Summaries",
       "type": "row"
     },
     {
@@ -1107,7 +1107,7 @@
       },
       "id": 120,
       "panels": [],
-      "title": "VBO - Stats",
+      "title": "Stats",
       "type": "row"
     },
     {
@@ -1493,7 +1493,7 @@
           "show": true
         },
         {
-          "decimals": null,
+          "decimals": 1,
           "format": "decmbytes",
           "label": "Transferred MB",
           "logBase": 1,
@@ -1909,7 +1909,7 @@
       },
       "id": 25,
       "panels": [],
-      "title": "VBO - Backup Repositories Status",
+      "title": "Backup Repositories Status",
       "type": "row"
     },
     {
@@ -2052,7 +2052,6 @@
         "auto_count": 100,
         "auto_min": "30s",
         "current": {
-          "selected": true,
           "text": "auto",
           "value": "$__auto_interval_inter"
         },
@@ -2150,7 +2149,7 @@
         "definition": "",
         "hide": 0,
         "includeAll": true,
-        "label": "Veeam Backup Job",
+        "label": "Backup Job",
         "multi": true,
         "name": "job",
         "options": [],
@@ -2172,7 +2171,7 @@
         "definition": "",
         "hide": 0,
         "includeAll": true,
-        "label": "Veeam Backup Proxies",
+        "label": "Backup Proxies",
         "multi": true,
         "name": "proxies",
         "options": [],
@@ -2194,7 +2193,7 @@
         "definition": "",
         "hide": 0,
         "includeAll": true,
-        "label": "Veeam Backup Repository",
+        "label": "Backup Repository",
         "multi": true,
         "name": "repository",
         "options": [],
@@ -2212,7 +2211,7 @@
     ]
   },
   "time": {
-    "from": "now-30d",
+    "from": "now-7d",
     "to": "now"
   },
   "timepicker": {
@@ -2243,5 +2242,5 @@
   "timezone": "browser",
   "title": "Grafana Dashboard for Veeam Backup for Microsoft Office 365",
   "uid": "s686QaPmk",
-  "version": 5
+  "version": 8
 }
