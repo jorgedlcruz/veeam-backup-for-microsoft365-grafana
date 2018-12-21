@@ -60,12 +60,12 @@
       }
     ]
   },
-  "description": "Veeam Backup for Microsoft Office 365 Dashboard",
+  "description": "Grafana Dashboard for Veeam Backup for Microsoft Office 365 Dashboard",
   "editable": true,
   "gnetId": 9542,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1545403048022,
+  "iteration": 1545406478583,
   "links": [],
   "panels": [
     {
@@ -78,7 +78,7 @@
       },
       "id": 61,
       "panels": [],
-      "title": "Veeam Backup for Microsoft Office 365 Overview",
+      "title": "VBO 365 - Overview",
       "type": "row"
     },
     {
@@ -697,7 +697,7 @@
       },
       "id": 151,
       "panels": [],
-      "title": "Veeam Backup for Microsoft Office 365 - Summaries",
+      "title": "VBO - Summaries",
       "type": "row"
     },
     {
@@ -1107,7 +1107,7 @@
       },
       "id": 120,
       "panels": [],
-      "title": "Veeam Backup for Microsoft Office 365 - Stats",
+      "title": "VBO - Stats",
       "type": "row"
     },
     {
@@ -1909,7 +1909,7 @@
       },
       "id": 25,
       "panels": [],
-      "title": "Backup Repositories Status",
+      "title": "VBO - Backup Repositories Status",
       "type": "row"
     },
     {
@@ -2212,7 +2212,7 @@
     ]
   },
   "time": {
-    "from": "now-2d",
+    "from": "now-30d",
     "to": "now"
   },
   "timepicker": {
@@ -2241,7 +2241,7 @@
     ]
   },
   "timezone": "browser",
-  "title": "Veeam Backup for Microsoft Office 365",
+  "title": "Grafana Dashboard for Veeam Backup for Microsoft Office 365",
   "uid": "s686QaPmk",
-  "version": 3
+  "version": 5
 }
