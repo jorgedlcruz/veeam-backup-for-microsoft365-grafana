@@ -14,7 +14,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "5.2.4"
+      "version": "5.4.2"
     },
     {
       "type": "panel",
@@ -65,7 +65,7 @@
   "gnetId": 9542,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1544994504125,
+  "iteration": 1545403048022,
   "links": [],
   "panels": [
     {
@@ -117,7 +117,7 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 4,
+        "w": 3,
         "x": 7,
         "y": 1
       },
@@ -237,8 +237,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 4,
-        "x": 11,
+        "w": 3,
+        "x": 10,
         "y": 1
       },
       "id": 98,
@@ -356,8 +356,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 4,
-        "x": 15,
+        "w": 3,
+        "x": 13,
         "y": 1
       },
       "id": 28,
@@ -459,6 +459,125 @@
         "#d44a3a"
       ],
       "datasource": "${DS_INFLUXDB}",
+      "decimals": 2,
+      "format": "decmbytes",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 1
+      },
+      "id": 110,
+      "interval": null,
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "postfix": "",
+      "postfixFontSize": "50%",
+      "prefix": "",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "#ba43a9",
+        "full": false,
+        "lineColor": "#962d82",
+        "show": false
+      },
+      "tableColumn": "",
+      "targets": [
+        {
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "veeam_office365_jobs",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT last(\"uptime_latest\") FROM \"vsphere_host_sys\" WHERE (\"esxhostname\" =~ /^$esxi$/ AND \"vcenter\" =~ /^$vcenter$/ AND \"clustername\" =~ /^$clustername$/) AND $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": false,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "transferredData"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "sum"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "veeamjobname",
+              "operator": "=~",
+              "value": "/^$job$/"
+            }
+          ]
+        }
+      ],
+      "thresholds": "",
+      "title": "Change Rate",
+      "type": "singlestat",
+      "valueFontSize": "80%",
+      "valueMaps": [
+        {
+          "op": "=",
+          "text": "N/A",
+          "value": "null"
+        }
+      ],
+      "valueName": "total"
+    },
+    {
+      "cacheTimeout": null,
+      "colorBackground": false,
+      "colorValue": false,
+      "colors": [
+        "#299c46",
+        "rgba(237, 129, 40, 0.89)",
+        "#d44a3a"
+      ],
+      "datasource": "${DS_INFLUXDB}",
       "decimals": 0,
       "format": "none",
       "gauge": {
@@ -470,11 +589,11 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 5,
-        "x": 19,
+        "w": 4,
+        "x": 20,
         "y": 1
       },
-      "id": 110,
+      "id": 176,
       "interval": null,
       "links": [],
       "mappingType": 1,
@@ -1148,6 +1267,7 @@
       ],
       "thresholds": [],
       "timeFrom": null,
+      "timeRegions": [],
       "timeShift": null,
       "title": "Job Read/Write Rate",
       "tooltip": {
@@ -1345,6 +1465,7 @@
       ],
       "thresholds": [],
       "timeFrom": null,
+      "timeRegions": [],
       "timeShift": null,
       "title": "Job Processing Rate/Transferred Data",
       "tooltip": {
@@ -1481,6 +1602,7 @@
       ],
       "thresholds": [],
       "timeFrom": null,
+      "timeRegions": [],
       "timeShift": null,
       "title": "Job Duration",
       "tooltip": {
@@ -1735,6 +1857,7 @@
       ],
       "thresholds": [],
       "timeFrom": null,
+      "timeRegions": [],
       "timeShift": null,
       "title": "Datastores - Usage Capacity",
       "tooltip": {
@@ -1929,6 +2052,7 @@
         "auto_count": 100,
         "auto_min": "30s",
         "current": {
+          "selected": true,
           "text": "auto",
           "value": "$__auto_interval_inter"
         },
@@ -1994,12 +2118,14 @@
         ],
         "query": "1m,10m,30m,1h,6h,12h,1d,7d,14d,30d",
         "refresh": 2,
+        "skipUrlSync": false,
         "type": "interval"
       },
       {
         "allValue": null,
         "current": {},
         "datasource": "${DS_INFLUXDB}",
+        "definition": "",
         "hide": 0,
         "includeAll": true,
         "label": "Organization",
@@ -2009,6 +2135,7 @@
         "query": "SHOW TAG VALUES FROM veeam_office365_organization WITH KEY=veeamOrgName",
         "refresh": 1,
         "regex": "",
+        "skipUrlSync": false,
         "sort": 0,
         "tagValuesQuery": "",
         "tags": [],
@@ -2020,6 +2147,7 @@
         "allValue": null,
         "current": {},
         "datasource": "${DS_INFLUXDB}",
+        "definition": "",
         "hide": 0,
         "includeAll": true,
         "label": "Veeam Backup Job",
@@ -2029,6 +2157,7 @@
         "query": "SHOW TAG VALUES FROM veeam_office365_jobs WITH KEY=veeamjobname",
         "refresh": 1,
         "regex": "",
+        "skipUrlSync": false,
         "sort": 0,
         "tagValuesQuery": "",
         "tags": [],
@@ -2040,6 +2169,7 @@
         "allValue": null,
         "current": {},
         "datasource": "${DS_INFLUXDB}",
+        "definition": "",
         "hide": 0,
         "includeAll": true,
         "label": "Veeam Backup Proxies",
@@ -2049,6 +2179,7 @@
         "query": "SHOW TAG VALUES FROM veeam_office365_proxies WITH KEY=proxies",
         "refresh": 1,
         "regex": "",
+        "skipUrlSync": false,
         "sort": 0,
         "tagValuesQuery": "",
         "tags": [],
@@ -2060,6 +2191,7 @@
         "allValue": null,
         "current": {},
         "datasource": "${DS_INFLUXDB}",
+        "definition": "",
         "hide": 0,
         "includeAll": true,
         "label": "Veeam Backup Repository",
@@ -2069,6 +2201,7 @@
         "query": "SHOW TAG VALUES FROM veeam_office365_repository WITH KEY=repository",
         "refresh": 1,
         "regex": "",
+        "skipUrlSync": false,
         "sort": 0,
         "tagValuesQuery": "",
         "tags": [],
@@ -2110,5 +2243,5 @@
   "timezone": "browser",
   "title": "Veeam Backup for Microsoft Office 365",
   "uid": "s686QaPmk",
-  "version": 2
+  "version": 3
 }
