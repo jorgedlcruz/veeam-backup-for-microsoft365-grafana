@@ -1,14 +1,15 @@
 #!/bin/bash
 ##      .SYNOPSIS
-##      Veeam Backup for Microsoft Office 365 - RestAPI to InfluxDB Script
+##      Grafana Dashboard for Veeam Backup for Microsoft Office 365 - Using RestAPI to InfluxDB Script
 ## 
 ##      .DESCRIPTION
-##      This Script will query the Veeam Backup for Microsoft Office 365 RestAPI and send the data directly to InfluxDB, which can be used to present it to Grafana
+##      This Script will query the Veeam Backup for Microsoft Office 365 RestAPI and send the data directly to InfluxDB, which can be used to present it to Grafana. 
+##      The Script and the Grafana Dashboard it is provided as it is, and bear in mind you can not open support Tickets regarding this project. It is a Community Project
 ##	
 ##      .Notes
 ##      NAME:  veeam_office365.sh
 ##      ORIGINAL NAME: veeam_office365.sh
-##      LASTEDIT: 16/12/2018
+##      LASTEDIT: 22/12/2018
 ##      VERSION: 0.1
 ##      KEYWORDS: Veeam, InfluxDB, Grafana
    
