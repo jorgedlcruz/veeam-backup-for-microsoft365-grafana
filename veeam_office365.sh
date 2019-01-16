@@ -113,9 +113,9 @@ for id in $(echo "$veeamJobsUrl" | jq -r '.[].id'); do
             jobStatus="3"
         ;;
         esac
-      processingRate=$(echo "$veeamJobSessionsUrl" | jq --raw-output ".[$arrayJobsSessions].statistics.processingRate" | awk -F'[^0-9]*' '{print $1}')
+      processingRate=$(echo "$veeamJobSessionsUrl" | jq --raw-output ".[$arrayJobsSessions].statistics.processingRate" | awk -F'[^0-9]*' '{print $1 "." $2}')
       readRate=$(echo "$veeamJobSessionsUrl" | jq --raw-output ".[$arrayJobsSessions].statistics.readRate")
-      readRateNum=$(echo "$readRate" | awk '//{ print $1 }' | awk -F. '{print $1}')
+      readRateNum=$(echo "$readRate" | awk '//{ print $1 }' )
       readRateUnit=$(echo "$readRate" | awk '//{ print $2 }')
       case $readRateUnit in
         B/s)
@@ -126,8 +126,8 @@ for id in $(echo "$veeamJobsUrl" | jq -r '.[].id'); do
         MB/s)
         ;;
         esac
-      writeRate=$(echo "$veeamJobSessionsUrl" | jq --raw-output ".[$arrayJobsSessions].statistics.writeRate")
-      writeRateNum=$(echo "$writeRate" | awk '//{ print $1 }' | awk -F. '{print $1}')
+      writeRate=$(echo "$veeamJobSessionsUrl" | jq --raw-output ".[$arrayJobsSessions].statistics.writeRate" | awk -F'[^0-9]*' '{print $1 "." $2}')
+      writeRateNum=$(echo "$writeRate" | awk '//{ print $1 }' )
       writeRateUnit=$(echo "$writeRate" | awk '//{ print $2 }')
       case $writeRateUnit in
         B/s)
@@ -138,8 +138,8 @@ for id in $(echo "$veeamJobsUrl" | jq -r '.[].id'); do
         MB/s)
         ;;
         esac 
-      transferredData=$(echo "$veeamJobSessionsUrl" | jq --raw-output ".[$arrayJobsSessions].statistics.transferredData")
-      transferredDataNum=$(echo "$transferredData" | awk '//{ print $1 }' | awk -F. '{print $1}')
+      transferredData=$(echo "$veeamJobSessionsUrl" | jq --raw-output ".[$arrayJobsSessions].statistics.transferredData" | awk -F'[^0-9]*' '{print $1 "." $2}')
+      transferredDataNum=$(echo "$transferredData" | awk '//{ print $1 }' )
       transferredDataUnit=$(echo "$transferredData" | awk '//{ print $2 }')
       case $transferredDataUnit in
         B)
@@ -154,7 +154,7 @@ for id in $(echo "$veeamJobsUrl" | jq -r '.[].id'); do
       bottleneck=$(echo "$veeamJobSessionsUrl" | jq --raw-output ".[$arrayJobsSessions].statistics.bottleneck")
       #echo "veeam_office365_jobs,name=$nameJob,bottleneck=$bottleneck totalDuration=$totalDuration,status=$status,processingRate=$processingRate,readRate=$readRateNum,writeRate=$writeRateNum,transferredData=$transferredDataNum,processedObjects=$processedObjects $endTimeUnix"
       curl -i -XPOST "http://$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=s&db=$veeamInfluxDB" --data-binary "veeam_office365_jobs,veeamjobname=$nameJob,bottleneck=$bottleneck totalDuration=$totalDuration,status=$jobStatus,processingRate=$processingRate,readRate=$readRateNum,writeRate=$writeRateNum,transferredData=$transferredDataNum,processedObjects=$processedObjects $endTimeUnix"
-    if [[ $arrayJobsSessions = "100" ]]; then
+    if [[ $arrayJobsSessions = "1000" ]]; then
         break
         else
             arrayJobsSessions=$arrayJobsSessions+1
