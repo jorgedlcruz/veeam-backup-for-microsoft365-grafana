@@ -173,7 +173,7 @@ declare -i arrayRestoreSessions=0
 for id in $(echo "$veeamRestoreSessionsUrl" | jq -r '.results[].id'); do
     name=$(echo "$veeamRestoreSessionsUrl" | jq --raw-output ".results[$arrayRestoreSessions].name" | awk '//{ print $6 }')
     nameJob=$(echo $name | awk -v FS="[()]" '{print $1}')
-    organization=$(echo "$veeamRestoreSessionsUrl" | jq --raw-output ".results[$arrayRestoreSessions].organization")
+    organization=$(echo "$veeamRestoreSessionsUrl" | jq --raw-output ".results[$arrayRestoreSessions].organization" | awk '{gsub(/ /,"\\ ");print}') 
     type=$(echo "$veeamRestoreSessionsUrl" | jq --raw-output ".results[$arrayRestoreSessions].type")
     endTime=$(echo "$veeamRestoreSessionsUrl" | jq --raw-output ".results[$arrayRestoreSessions].endTime")
     endTimeUnix=$(date -d "$endTime" +"%s")
