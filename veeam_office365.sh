@@ -37,16 +37,22 @@ veeamBearer=$(curl -X POST --header "Content-Type: application/x-www-form-urlenc
 ##
 veeamVBOUrl="$veeamRestServer:$veeamRestPort/v2/Organizations"
 veeamOrgUrl=$(curl -X GET --header "Accept:application/json" --header "Authorization:Bearer $veeamBearer" "$veeamVBOUrl" 2>&1 -k --silent)
-veeamOrgId=$(echo "$veeamOrgUrl" | jq --raw-output '.[].id')
-veeamOrgName=$(echo "$veeamOrgUrl" | jq --raw-output '.[].name')
 
-## Licensing
-veeamVBOUrl="$veeamRestServer:$veeamRestPort/v2/Organizations/$veeamOrgId/LicensingInformation"
-veeamLicenseUrl=$(curl -X GET --header "Accept:application/json" --header "Authorization:Bearer $veeamBearer" "$veeamVBOUrl" 2>&1 -k --silent)
-licensedUsers=$(echo "$veeamLicenseUrl" | jq --raw-output '.licensedUsers')
-newUsers=$(echo "$veeamLicenseUrl" | jq --raw-output '.newUsers')
+declare -i arrayorg=0
+for id in $(echo "$veeamOrgUrl" | jq -r '.[].id'); do
+    veeamOrgId=$(echo "$veeamOrgUrl" | jq --raw-output ".[$arrayorg].id")
+    veeamOrgName=$(echo "$veeamOrgUrl" | jq --raw-output ".[$arrayorg].name")
 
-curl -i -XPOST "http://$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=ms&db=$veeamInfluxDB" --data-binary "veeam_office365_organization,veeamOrgName=$veeamOrgName licensedUsers=$licensedUsers,newUsers=$newUsers"
+    ## Licensing
+    veeamVBOUrl="$veeamRestServer:$veeamRestPort/v2/Organizations/$veeamOrgId/LicensingInformation"
+    veeamLicenseUrl=$(curl -X GET --header "Accept:application/json" --header "Authorization:Bearer $veeamBearer" "$veeamVBOUrl" 2>&1 -k --silent)
+    licensedUsers=$(echo "$veeamLicenseUrl" | jq --raw-output '.licensedUsers')
+    newUsers=$(echo "$veeamLicenseUrl" | jq --raw-output '.newUsers')
+
+    curl -i -XPOST "http://$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=ms&db=$veeamInfluxDB" --data-binary "veeam_office365_organization,veeamOrgName=$veeamOrgName licensedUsers=$licensedUsers,newUsers=$newUsers"
+    arrayorg=$arrayorg+1
+done
+ 
 
 ##
 # Veeam Backup for Microsoft Office 365 Backup Repositories. This part will check the capacity and used space of the Backup Repositories
@@ -56,7 +62,7 @@ veeamRepoUrl=$(curl -X GET --header "Accept:application/json" --header "Authoriz
 
 declare -i arrayrepo=0
 for id in $(echo "$veeamRepoUrl" | jq -r '.[].id'); do
-  repository=$(echo "$veeamRepoUrl" | jq --raw-output ".[$arrayrepo].name")
+  repository=$(echo "$veeamRepoUrl" | jq --raw-output ".[$arrayrepo].name" | awk '{gsub(/ /,"\\ ");print}')
   capacity=$(echo "$veeamRepoUrl" | jq --raw-output ".[$arrayrepo].capacity")
   freeSpace=$(echo "$veeamRepoUrl" | jq --raw-output ".[$arrayrepo].freeSpace")
   #echo "veeam_office365_repository,repository=$repository capacity=$capacity,freeSpace=$freeSpace"
@@ -72,7 +78,7 @@ veeamProxyUrl=$(curl -X GET --header "Accept:application/json" --header "Authori
 
 declare -i arrayprox=0
 for id in $(echo "$veeamProxyUrl" | jq -r '.[].id'); do
-    hostName=$(echo "$veeamProxyUrl" | jq --raw-output ".[$arrayprox].hostName")
+    hostName=$(echo "$veeamProxyUrl" | jq --raw-output ".[$arrayprox].hostName" | awk '{gsub(/ /,"\\ ");print}')
     threadsNumber=$(echo "$veeamProxyUrl" | jq --raw-output ".[$arrayprox].threadsNumber")
     status=$(echo "$veeamProxyUrl" | jq --raw-output ".[$arrayprox].status")
     # echo "veeam_office365_repository,repository=$repository capacity=$capacity,freeSpace=$freeSpace $timestamp"
