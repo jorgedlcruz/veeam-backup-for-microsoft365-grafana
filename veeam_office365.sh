@@ -94,7 +94,7 @@ veeamJobsUrl=$(curl -X GET --header "Accept:application/json" --header "Authoriz
 
 declare -i arrayJobs=0
 for id in $(echo "$veeamJobsUrl" | jq -r '.[].id'); do
-    nameJob=$(echo "$veeamJobsUrl" | jq --raw-output ".[$arrayJobs].name")
+    nameJob=$(echo "$veeamJobsUrl" | jq --raw-output ".[$arrayJobs].name" | awk '{gsub(/ /,"\\ ");print}')
     idJob=$(echo "$veeamJobsUrl" | jq --raw-output ".[$arrayJobs].id")
     
     # Backup Job Sessions
