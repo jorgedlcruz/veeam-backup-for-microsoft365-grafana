@@ -24,6 +24,8 @@
 veeamInfluxDBURL="YOURINFLUXSERVERIP"
 veeamInfluxDBPort="8086" #Default Port
 veeamInfluxDB="telegraf" #Default Database
+veeamInfluxDBUser="USER" #User for Database
+veeamInfluxDBPassword="PASSWORD" #Password for Database
 
 # Endpoint URL for login action
 veeamUsername="YOURVBOUSER"
@@ -49,7 +51,7 @@ for id in $(echo "$veeamOrgUrl" | jq -r '.[].id'); do
     licensedUsers=$(echo "$veeamLicenseUrl" | jq --raw-output '.licensedUsers')
     newUsers=$(echo "$veeamLicenseUrl" | jq --raw-output '.newUsers')
 
-    curl -i -XPOST "http://$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=ms&db=$veeamInfluxDB" --data-binary "veeam_office365_organization,veeamOrgName=$veeamOrgName licensedUsers=$licensedUsers,newUsers=$newUsers"
+    curl -i -XPOST "http://$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=ms&db=$veeamInfluxDB" -u "$veeamInfluxDBUser:$veeamInfluxDBPassword" --data-binary "veeam_office365_organization,veeamOrgName=$veeamOrgName licensedUsers=$licensedUsers,newUsers=$newUsers"
     arrayorg=$arrayorg+1
 done
  
@@ -66,7 +68,7 @@ for id in $(echo "$veeamRepoUrl" | jq -r '.[].id'); do
   capacity=$(echo "$veeamRepoUrl" | jq --raw-output ".[$arrayrepo].capacity")
   freeSpace=$(echo "$veeamRepoUrl" | jq --raw-output ".[$arrayrepo].freeSpace")
   #echo "veeam_office365_repository,repository=$repository capacity=$capacity,freeSpace=$freeSpace"
-  curl -i -XPOST "http://$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=ms&db=$veeamInfluxDB" --data-binary "veeam_office365_repository,repository=$repository capacity=$capacity,freeSpace=$freeSpace"
+  curl -i -XPOST "http://$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=ms&db=$veeamInfluxDB" -u "$veeamInfluxDBUser:$veeamInfluxDBPassword" --data-binary "veeam_office365_repository,repository=$repository capacity=$capacity,freeSpace=$freeSpace"
   arrayrepo=$arrayrepo+1
 done
 
@@ -82,7 +84,7 @@ for id in $(echo "$veeamProxyUrl" | jq -r '.[].id'); do
     threadsNumber=$(echo "$veeamProxyUrl" | jq --raw-output ".[$arrayprox].threadsNumber")
     status=$(echo "$veeamProxyUrl" | jq --raw-output ".[$arrayprox].status")
     # echo "veeam_office365_repository,repository=$repository capacity=$capacity,freeSpace=$freeSpace $timestamp"
-    curl -i -XPOST "http://$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=ms&db=$veeamInfluxDB" --data-binary "veeam_office365_proxies,proxies=$hostName,status=$status threadsNumber=$threadsNumber"
+    curl -i -XPOST "http://$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=ms&db=$veeamInfluxDB" -u "$veeamInfluxDBUser:$veeamInfluxDBPassword" --data-binary "veeam_office365_proxies,proxies=$hostName,status=$status threadsNumber=$threadsNumber"
     arrayprox=$arrayprox+1
 done
 
@@ -159,7 +161,7 @@ for id in $(echo "$veeamJobsUrl" | jq -r '.[].id'); do
       processedObjects=$(echo "$veeamJobSessionsUrl" | jq --raw-output ".[$arrayJobsSessions].statistics.processedObjects")
       bottleneck=$(echo "$veeamJobSessionsUrl" | jq --raw-output ".[$arrayJobsSessions].statistics.bottleneck")
       #echo "veeam_office365_jobs,name=$nameJob,bottleneck=$bottleneck totalDuration=$totalDuration,status=$status,processingRate=$processingRate,readRate=$readRateNum,writeRate=$writeRateNum,transferredData=$transferredDataNum,processedObjects=$processedObjects $endTimeUnix"
-      curl -i -XPOST "http://$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=s&db=$veeamInfluxDB" --data-binary "veeam_office365_jobs,veeamjobname=$nameJob,bottleneck=$bottleneck totalDuration=$totalDuration,status=$jobStatus,processingRate=$processingRate,readRate=$readRateNum,writeRate=$writeRateNum,transferredData=$transferredDataNum,processedObjects=$processedObjects $endTimeUnix"
+      curl -i -XPOST "http://$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=s&db=$veeamInfluxDB" -u "$veeamInfluxDBUser:$veeamInfluxDBPassword" --data-binary "veeam_office365_jobs,veeamjobname=$nameJob,bottleneck=$bottleneck totalDuration=$totalDuration,status=$jobStatus,processingRate=$processingRate,readRate=$readRateNum,writeRate=$writeRateNum,transferredData=$transferredDataNum,processedObjects=$processedObjects $endTimeUnix"
     if [[ $arrayJobsSessions = "1000" ]]; then
         break
         else
@@ -190,6 +192,6 @@ for id in $(echo "$veeamRestoreSessionsUrl" | jq -r '.results[].id'); do
     itemsSuccess=$(echo $details | awk '//{ print $4 }' | awk -v FS="[()]" '{print $1}')
     [[ ! -z "$itemsSuccess" ]] || itemsSuccess="0"
     #echo "veeam_office365_repository,organization=$organization,name=$name,type=$type,result=$result,initiatedBy=$initiatedBy itemsProcessed=$itemsProcessed,itemsSuccess=$itemsSuccess $endTimeUnix"
-    curl -i -XPOST "http://$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=s&db=$veeamInfluxDB" --data-binary "veeam_office365_restoresession,organization=$organization,veeamjobname=$nameJob,type=$type,result=$result,initiatedBy=$initiatedBy itemsProcessed=$itemsProcessed,itemsSuccess=$itemsSuccess $endTimeUnix"
+    curl -i -XPOST "http://$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=s&db=$veeamInfluxDB" -u "$veeamInfluxDBUser:$veeamInfluxDBPassword" --data-binary "veeam_office365_restoresession,organization=$organization,veeamjobname=$nameJob,type=$type,result=$result,initiatedBy=$initiatedBy itemsProcessed=$itemsProcessed,itemsSuccess=$itemsSuccess $endTimeUnix"
     arrayRestoreSessions=$arrayRestoreSessions+1
 done
