@@ -1,11 +1,11 @@
-Grafana Dashboard for Veeam Backup for Microsoft Office 365
+Grafana Dashboard for Veeam Backup for Microsoft Office 365 v3.0
 ===================
 
 ![alt tag](https://jorgedelacruz.uk/wp-content/uploads/2018/12/Grafana-Veeam-Backup-for-Microsoft-Office-365-002.png)
 
-This project consists in a Bash Shell script to retrieve the Veeam Backup for Microsoft Office 365 v2.0 information, directly from the RESTfulAPI, about last jobs, users and much more. The information is being saved it into InfluxDB output directly into the InfluxDB database using curl, then in Grafana: a Dashboard is created to present all the information.
+This project consists in a Bash Shell script to retrieve the Veeam Backup for Microsoft Office 365 v3.0 information, directly from the RESTfulAPI, about last jobs, users and much more. The information is being saved it into InfluxDB output directly into the InfluxDB database using curl, then in Grafana: a Dashboard is created to present all the information.
 
-We use Veeam Backup for Microsoft Office 365 v2.0 RESTfulAPI to reduce the workload and increase the speed of script execution.
+We use Veeam Backup for Microsoft Office 365 v3.0 RESTfulAPI to reduce the workload and increase the speed of script execution.
 
 ----------
 
