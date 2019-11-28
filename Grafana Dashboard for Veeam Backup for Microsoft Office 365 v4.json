@@ -66,12 +66,12 @@
       }
     ]
   },
-  "description": "Grafana Dashboard for Veeam Backup for Microsoft Office 365 Dashboard",
+  "description": "Grafana Dashboard for Veeam Backup for Microsoft Office 365 Dashboard - Works only with v4.0 of VBO",
   "editable": true,
-  "gnetId": 9542,
+  "gnetId": 11286,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1574813049187,
+  "iteration": 1574975695883,
   "links": [],
   "panels": [
     {
@@ -730,7 +730,7 @@
       },
       "gridPos": {
         "h": 3,
-        "w": 4,
+        "w": 8,
         "x": 0,
         "y": 6
       },
@@ -869,7 +869,7 @@
       },
       "gridPos": {
         "h": 3,
-        "w": 4,
+        "w": 8,
         "x": 0,
         "y": 9
       },
@@ -992,7 +992,7 @@
       },
       "gridPos": {
         "h": 3,
-        "w": 4,
+        "w": 8,
         "x": 0,
         "y": 12
       },
@@ -1713,15 +1713,15 @@
           "unit": "short",
           "valueMaps": [
             {
-              "text": "Success",
+              "text": "✅",
               "value": "1"
             },
             {
-              "text": "Warning",
+              "text": "⚠️",
               "value": "2"
             },
             {
-              "text": "Failed",
+              "text": "❌",
               "value": "3"
             },
             {
@@ -1737,7 +1737,7 @@
           "groupBy": [
             {
               "params": [
-                "1h"
+                "$__interval"
               ],
               "type": "time"
             },
@@ -1749,7 +1749,7 @@
             },
             {
               "params": [
-                "null"
+                "none"
               ],
               "type": "fill"
             }
@@ -3104,7 +3104,7 @@
         "name": "job",
         "options": [],
         "query": "SHOW TAG VALUES FROM veeam_office365_jobs WITH KEY=veeamjobname",
-        "refresh": 1,
+        "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
@@ -3214,5 +3214,5 @@
   "timezone": "browser",
   "title": "Grafana Dashboard for Veeam Backup for Microsoft Office 365 v4",
   "uid": "AGZEYsbZk",
-  "version": 5
+  "version": 4
 }

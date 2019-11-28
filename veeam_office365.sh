@@ -21,7 +21,7 @@
 # Configurations
 ##
 # Endpoint URL for InfluxDB
-veeamInfluxDBURL="YOURINFLUXSERVERIP"
+veeamInfluxDBURL="YOURINFLUXSERVERIP" #Your InfluxDB Server, http://FQDN or https://FQDN if using SSL
 veeamInfluxDBPort="8086" #Default Port
 veeamInfluxDB="telegraf" #Default Database
 veeamInfluxDBUser="USER" #User for Database
@@ -52,7 +52,7 @@ for id in $(echo "$veeamOrgUrl" | jq -r '.[].id'); do
     newUsers=$(echo "$veeamLicenseUrl" | jq --raw-output '.newUsers')
     
     #echo "veeam_office365_organization,veeamOrgName=$veeamOrgName licensedUsers=$licensedUsers,newUsers=$newUsers"
-    curl -i -XPOST "http://$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=ms&db=$veeamInfluxDB" -u "$veeamInfluxDBUser:$veeamInfluxDBPassword" --data-binary "veeam_office365_organization,veeamOrgName=$veeamOrgName licensedUsers=$licensedUsers,newUsers=$newUsers"
+    curl -i -XPOST "$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=s&db=$veeamInfluxDB" -u "$veeamInfluxDBUser:$veeamInfluxDBPassword" --data-binary "veeam_office365_organization,veeamOrgName=$veeamOrgName licensedUsers=$licensedUsers,newUsers=$newUsers"
     arrayorg=$arrayorg+1
 done
  
@@ -72,7 +72,7 @@ for id in $(echo "$veeamRepoUrl" | jq -r '.[].id'); do
   objectStorageEncryptionEnabled=$(echo "$veeamRepoUrl" | jq --raw-output ".[$arrayrepo].objectStorageEncryptionEnabled")
   
   #echo "veeam_office365_repository,name=$repository,objectStorageEncryptionEnabled=$objectStorageEncryptionEnabled capacity=$capacity,freeSpace=$freeSpace"
-  curl -i -XPOST "http://$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=ms&db=$veeamInfluxDB" -u "$veeamInfluxDBUser:$veeamInfluxDBPassword" --data-binary "veeam_office365_repository,repository=$repository capacity=$capacity,freeSpace=$freeSpace"
+  curl -i -XPOST "$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=s&db=$veeamInfluxDB" -u "$veeamInfluxDBUser:$veeamInfluxDBPassword" --data-binary "veeam_office365_repository,repository=$repository capacity=$capacity,freeSpace=$freeSpace"
   
   ##
   # Veeam Backup for Microsoft Office 365 Object Storage Repositories. This part will check the capacity and used space of the Object Storage Repositories
@@ -91,7 +91,7 @@ for id in $(echo "$veeamRepoUrl" | jq -r '.[].id'); do
     region=$(echo "$veeamObjectUrl" | jq --raw-output ".bucket.region" | awk '{gsub(/ /,"\\ ");print}')
   
     #echo "veeam_office365_objectstorage,name=$objectName,type=$type,bucketname=$bucketname,servicePoint=$servicePoint,customRegionId=$customRegionId,location=$location,region=$region usedSpaceGB=$usedSpaceGB"
-    curl -i -XPOST "http://$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=ms&db=$veeamInfluxDB" -u "$veeamInfluxDBUser:$veeamInfluxDBPassword" --data-binary "veeam_office365_objectstorage,objectname=$objectName,type=$type,bucketname=$bucketname,servicePoint=$servicePoint,customRegionId=$customRegionId,location=$location,region=$region,objectStorageEncryptionEnabled=$objectStorageEncryptionEnabled usedSpaceGB=$usedSpaceGB"
+    curl -i -XPOST "$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=s&db=$veeamInfluxDB" -u "$veeamInfluxDBUser:$veeamInfluxDBPassword" --data-binary "veeam_office365_objectstorage,objectname=$objectName,type=$type,bucketname=$bucketname,servicePoint=$servicePoint,customRegionId=$customRegionId,location=$location,region=$region,objectStorageEncryptionEnabled=$objectStorageEncryptionEnabled usedSpaceGB=$usedSpaceGB"
 
   arrayrepo=$arrayrepo+1
 done
@@ -110,7 +110,7 @@ for id in $(echo "$veeamProxyUrl" | jq -r '.[].id'); do
     status=$(echo "$veeamProxyUrl" | jq --raw-output ".[$arrayprox].status")
     
     #echo "veeam_office365_proxies,proxies=$hostName,status=$status threadsNumber=$threadsNumber"
-    curl -i -XPOST "http://$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=ms&db=$veeamInfluxDB" -u "$veeamInfluxDBUser:$veeamInfluxDBPassword" --data-binary "veeam_office365_proxies,proxies=$hostName,status=$status threadsNumber=$threadsNumber"
+    curl -i -XPOST "$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=s&db=$veeamInfluxDB" -u "$veeamInfluxDBUser:$veeamInfluxDBPassword" --data-binary "veeam_office365_proxies,proxies=$hostName,status=$status threadsNumber=$threadsNumber"
     arrayprox=$arrayprox+1
 done
 
@@ -155,7 +155,7 @@ for id in $(echo "$veeamJobsUrl" | jq -r '.[].id'); do
       bottleneck=$(echo "$veeamJobSessionsUrl" | jq --raw-output ".[$arrayJobsSessions].statistics.bottleneck")
       
       #echo "veeam_office365_jobs,veeamjobname=$nameJob,bottleneck=$bottleneck totalDuration=$totalDuration,status=$jobStatus,processingRate=$processingRate,readRate=$readRate,writeRate=$writeRate,transferredData=$transferredData,processedObjects=$processedObjects $endTimeUnix"
-      curl -i -XPOST "http://$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=s&db=$veeamInfluxDB" -u "$veeamInfluxDBUser:$veeamInfluxDBPassword" --data-binary "veeam_office365_jobs,veeamjobname=$nameJob,bottleneck=$bottleneck totalDuration=$totalDuration,status=$jobStatus,processingRate=$processingRate,readRate=$readRate,writeRate=$writeRate,transferredData=$transferredData,processedObjects=$processedObjects $endTimeUnix"
+      curl -i -XPOST "$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=s&db=$veeamInfluxDB" -u "$veeamInfluxDBUser:$veeamInfluxDBPassword" --data-binary "veeam_office365_jobs,veeamjobname=$nameJob,bottleneck=$bottleneck totalDuration=$totalDuration,status=$jobStatus,processingRate=$processingRate,readRate=$readRate,writeRate=$writeRate,transferredData=$transferredData,processedObjects=$processedObjects $endTimeUnix"
     if [[ $arrayJobsSessions = "1000" ]]; then
         break
         else
@@ -188,6 +188,6 @@ for id in $(echo "$veeamRestoreSessionsUrl" | jq -r '.results[].id'); do
     [[ ! -z "$itemsSuccess" ]] || itemsSuccess="0"
     
     #echo "veeam_office365_restoresession,organization=$organization,veeamjobname=$nameJob,type=$type,result=$result,initiatedBy=$initiatedBy itemsProcessed=$itemsProcessed,itemsSuccess=$itemsSuccess $endTimeUnix"
-    curl -i -XPOST "http://$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=s&db=$veeamInfluxDB" -u "$veeamInfluxDBUser:$veeamInfluxDBPassword" --data-binary "veeam_office365_restoresession,organization=$organization,veeamjobname=$nameJob,type=$type,result=$result,initiatedBy=$initiatedBy itemsProcessed=$itemsProcessed,itemsSuccess=$itemsSuccess $endTimeUnix"
+    curl -i -XPOST "$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=s&db=$veeamInfluxDB" -u "$veeamInfluxDBUser:$veeamInfluxDBPassword" --data-binary "veeam_office365_restoresession,organization=$organization,veeamjobname=$nameJob,type=$type,result=$result,initiatedBy=$initiatedBy itemsProcessed=$itemsProcessed,itemsSuccess=$itemsSuccess $endTimeUnix"
     arrayRestoreSessions=$arrayRestoreSessions+1
 done
