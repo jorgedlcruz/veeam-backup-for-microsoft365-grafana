@@ -9,7 +9,7 @@
 ##      .Notes
 ##      NAME:  veeam_office365.sh
 ##      ORIGINAL NAME: veeam_office365.sh
-##      LASTEDIT: 10/01/2020
+##      LASTEDIT: 02/06/2020
 ##      VERSION: 4.0
 ##      KEYWORDS: Veeam, InfluxDB, Grafana
    
@@ -246,8 +246,8 @@ veeamRestoreSessionsUrl=$(curl -X GET --header "Accept:application/json" --heade
 
 declare -i arrayRestoreSessions=0
 for id in $(echo "$veeamRestoreSessionsUrl" | jq -r '.results[].id'); do
-    name=$(echo "$veeamRestoreSessionsUrl" | jq --raw-output ".results[$arrayRestoreSessions].name" | awk '{gsub(/ /,"\\ ");print}')
-    nameJob=$(echo $name | awk -v FS="[()]" '{print $1}')
+    name=$(echo "$veeamRestoreSessionsUrl" | jq --raw-output ".results[$arrayRestoreSessions].name")
+    nameJob=$(echo $name | awk -F": " '{print $2}' | awk -F" - " '{print $1}')
     organization=$(echo "$veeamRestoreSessionsUrl" | jq --raw-output ".results[$arrayRestoreSessions].organization" | awk '{gsub(/ /,"\\ ");print}') 
     type=$(echo "$veeamRestoreSessionsUrl" | jq --raw-output ".results[$arrayRestoreSessions].type")
     endTime=$(echo "$veeamRestoreSessionsUrl" | jq --raw-output ".results[$arrayRestoreSessions].endTime")
@@ -256,10 +256,11 @@ for id in $(echo "$veeamRestoreSessionsUrl" | jq -r '.results[].id'); do
     initiatedBy=$(echo "$veeamRestoreSessionsUrl" | jq --raw-output ".results[$arrayRestoreSessions].initiatedBy")
     details=$(echo "$veeamRestoreSessionsUrl" | jq --raw-output ".results[$arrayRestoreSessions].details")
     itemsProcessed=$(echo $details | awk '//{ print $1 }')
+
     [[ ! -z "$itemsProcessed" ]] || itemsProcessed="0"
     itemsSuccess=$(echo $details | awk '//{ print $4 }' | awk '{gsub(/\(|\)/,"");print $1}')
     [[ ! -z "$itemsSuccess" ]] || itemsSuccess="0"
-    
+
     #echo "veeam_office365_restoresession,organization=$organization,veeamjobname=$nameJob,type=$type,result=$result,initiatedBy=$initiatedBy itemsProcessed=$itemsProcessed,itemsSuccess=$itemsSuccess $endTimeUnix"
     curl -i -XPOST "$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=s&db=$veeamInfluxDB" -u "$veeamInfluxDBUser:$veeamInfluxDBPassword" --data-binary "veeam_office365_restoresession,organization=$organization,veeamjobname=$nameJob,type=$type,result=$result,initiatedBy=$initiatedBy itemsProcessed=$itemsProcessed,itemsSuccess=$itemsSuccess $endTimeUnix"
     arrayRestoreSessions=$arrayRestoreSessions+1
