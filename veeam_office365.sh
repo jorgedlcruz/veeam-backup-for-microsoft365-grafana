@@ -25,7 +25,7 @@ veeamInfluxDBURL="YOURINFLUXSERVERIP" #Your InfluxDB Server, http://FQDN or http
 veeamInfluxDBPort="8086" #Default Port
 veeamInfluxDB="telegraf" #Default Database
 veeamInfluxDBUser="USER" #User for Database
-veeamInfluxDBPassword="PASSWORD" #Password for Database
+veeamInfluxDBPassword='PASSWORD' #Password for Database
 
 # Endpoint URL for login action
 veeamUsername="YOURVBOUSER"
