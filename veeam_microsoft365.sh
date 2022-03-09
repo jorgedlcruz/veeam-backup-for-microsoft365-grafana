@@ -1,15 +1,15 @@
 #!/bin/bash
 ##      .SYNOPSIS
-##      Grafana Dashboard for Veeam Backup for Microsoft Office 365 v5.0 - Using RestAPI to InfluxDB Script
+##      Grafana Dashboard for Veeam Backup for Microsoft 365 v5.0 - Using RestAPI to InfluxDB Script
 ## 
 ##      .DESCRIPTION
-##      This Script will query the Veeam Backup for Microsoft Office 365 RestAPI and send the data directly to InfluxDB, which can be used to present it to Grafana. 
+##      This Script will query the Veeam Backup for Microsoft 365 RestAPI and send the data directly to InfluxDB, which can be used to present it to Grafana. 
 ##      The Script and the Grafana Dashboard it is provided as it is, and bear in mind you can not open support Tickets regarding this project. It is a Community Project
 ##	
 ##      .Notes
-##      NAME:  veeam_office365.sh
-##      ORIGINAL NAME: veeam_office365.sh
-##      LASTEDIT: 15/12/2020
+##      NAME:  veeam_microsoft365.sh
+##      ORIGINAL veeam_microsoft365.sh
+##      LASTEDIT: 09/03/2022
 ##      VERSION: 5.0
 ##      KEYWORDS: Veeam, InfluxDB, Grafana
    
@@ -21,11 +21,11 @@
 # Configurations
 ##
 # Endpoint URL for InfluxDB
-veeamInfluxDBURL="YOURINFLUXSERVERIP" #Your InfluxDB Server, http://FQDN or https://FQDN if using SSL
+veeamInfluxDBURL="http://YOURINFLUXSERVERIP" #Your InfluxDB Server, http://FQDN or https://FQDN if using SSL
 veeamInfluxDBPort="8086" #Default Port
-veeamInfluxDB="telegraf" #Default Database
-veeamInfluxDBUser="USER" #User for Database
-veeamInfluxDBPassword='PASSWORD' #Password for Database
+veeamInfluxDBBucket="veeam" # InfluxDB bucket name (not ID)
+veeamInfluxDBToken="TOKEN" # InfluxDB access token with read/write privileges for the bucket
+veeamInfluxDBOrg="ORG NAME" # InfluxDB organisation name (not ID)
 
 # Endpoint URL for login action
 veeamUsername="YOURVBOUSER"
@@ -35,7 +35,7 @@ veeamRestPort="4443" #Default Port
 veeamBearer=$(curl -X POST --header "Content-Type: application/x-www-form-urlencoded" --header "Accept: application/json" -d "grant_type=password&username=$veeamUsername&password=$veeamPassword&refresh_token=%27%27" "$veeamRestServer:$veeamRestPort/v5/token" -k --silent | jq -r '.access_token')
 
 ##
-# Veeam Backup for Microsoft Office 365 Organization. This part will check on our Organization and retrieve Licensing Information
+# Veeam Backup for Microsoft 365 Organization. This part will check on our Organization and retrieve Licensing Information
 ##
 veeamVBOUrl="$veeamRestServer:$veeamRestPort/v5/Organizations"
 veeamOrgUrl=$(curl -X GET --header "Accept:application/json" --header "Authorization:Bearer $veeamBearer" "$veeamVBOUrl" 2>&1 -k --silent)
@@ -52,10 +52,10 @@ for id in $(echo "$veeamOrgUrl" | jq -r '.[].id'); do
     newUsers=$(echo "$veeamLicenseUrl" | jq --raw-output '.newUsers')
     
     #echo "veeam_office365_organization,veeamOrgName=$veeamOrgName licensedUsers=$licensedUsers,newUsers=$newUsers"
-    curl -i -XPOST "$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=s&db=$veeamInfluxDB" -u "$veeamInfluxDBUser:$veeamInfluxDBPassword" --data-binary "veeam_office365_organization,veeamOrgName=$veeamOrgName licensedUsers=$licensedUsers,newUsers=$newUsers"
+    curl -i -XPOST "$veeamInfluxDBURL:$veeamInfluxDBPort/api/v2/write?org=$veeamInfluxDBOrg&bucket=$veeamInfluxDBBucket&precision=s" -H "Authorization: Token $veeamInfluxDBToken" --data-binary "veeam_office365_organization,veeamOrgName=$veeamOrgName licensedUsers=$licensedUsers,newUsers=$newUsers"
     
     ##
-    # Veeam Backup for Microsoft Office 365 Users. This part will check the total Users and if they are protected or not
+    # Veeam Backup for Microsoft 365 Users. This part will check the total Users and if they are protected or not
     ##
     veeamVBOUrl="$veeamRestServer:$veeamRestPort/v5/LicensedUsers"
     veeamUsersUrl=$(curl -X GET --header "Accept:application/json" --header "Authorization:Bearer $veeamBearer" "$veeamVBOUrl" 2>&1 -k --silent)
@@ -83,7 +83,7 @@ for id in $(echo "$veeamOrgUrl" | jq -r '.[].id'); do
         esac
     
     #echo "veeam_office365_overview_OD,veeamOrgName=$veeamOrgName,veeamUserName=$veeamUserName protectedUser=$protectedUser,licensedUser=$LicensedUser"
-    curl -i -XPOST "$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=s&db=$veeamInfluxDB" -u "$veeamInfluxDBUser:$veeamInfluxDBPassword" --data-binary "veeam_office365_overview_OD,veeamOrgName=$veeamOrgName,veeamUserName=$veeamUserName protectedUser=$protectedUser,licensedUser=$LicensedUser"
+    curl -i -XPOST "$veeamInfluxDBURL:$veeamInfluxDBPort/api/v2/write?org=$veeamInfluxDBOrg&bucket=$veeamInfluxDBBucket&precision=s" -H "Authorization: Token $veeamInfluxDBToken" --data-binary "veeam_office365_overview_OD,veeamOrgName=$veeamOrgName,veeamUserName=$veeamUserName protectedUser=$protectedUser,licensedUser=$LicensedUser"
     arrayLicensed=$arrayLicensed+1
     done
 
@@ -92,7 +92,7 @@ done
  
 
 ##
-# Veeam Backup for Microsoft Office 365 Backup Repositories. This part will check the capacity and used space of the Backup Repositories
+# Veeam Backup for Microsoft 365 Backup Repositories. This part will check the capacity and used space of the Backup Repositories
 ##
 veeamVBOUrl="$veeamRestServer:$veeamRestPort/v5/BackupRepositories"
 veeamRepoUrl=$(curl -X GET --header "Accept:application/json" --header "Authorization:Bearer $veeamBearer" "$veeamVBOUrl" 2>&1 -k --silent)
@@ -106,12 +106,12 @@ for id in $(echo "$veeamRepoUrl" | jq -r '.[].id'); do
   objectStorageEncryptionEnabled=$(echo "$veeamRepoUrl" | jq --raw-output ".[$arrayrepo].objectStorageEncryptionEnabled")
   
   #echo "veeam_office365_repository,repository=$repository capacity=$capacity,freeSpace=$freeSpace"
-  curl -i -XPOST "$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=s&db=$veeamInfluxDB" -u "$veeamInfluxDBUser:$veeamInfluxDBPassword" --data-binary "veeam_office365_repository,repository=$repository capacity=$capacity,freeSpace=$freeSpace"
+  curl -i -XPOST "$veeamInfluxDBURL:$veeamInfluxDBPort/api/v2/write?org=$veeamInfluxDBOrg&bucket=$veeamInfluxDBBucket&precision=s" -H "Authorization: Token $veeamInfluxDBToken" --data-binary "veeam_office365_repository,repository=$repository capacity=$capacity,freeSpace=$freeSpace"
   if [[ "$objectStorageId" == "null" ]]; then
         echo "It seems you are not using Object Storage offload on the Repository $repository, that's fine."
   else  
   ##
-  # Veeam Backup for Microsoft Office 365 Object Storage Repositories. This part will check the capacity and used space of the Object Storage Repositories
+  # Veeam Backup for Microsoft 365 Object Storage Repositories. This part will check the capacity and used space of the Object Storage Repositories
   ##
   veeamVBOUrl="$veeamRestServer:$veeamRestPort/v5/objectstoragerepositories/$objectStorageId"
   veeamObjectUrl=$(curl -X GET --header "Accept:application/json" --header "Authorization:Bearer $veeamBearer" "$veeamVBOUrl" 2>&1 -k --silent)
@@ -126,14 +126,14 @@ for id in $(echo "$veeamRepoUrl" | jq -r '.[].id'); do
 
 
         #echo "veeam_office365_objectstorage,objectname=$objectName,type=$type,bucketname=$bucketname,servicePoint=$servicePoint,customRegionId=$customRegionId,objectStorageEncryptionEnabled=$objectStorageEncryptionEnabled usedSpaceGB=$usedSpaceGB"
-        curl -i -XPOST "$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=s&db=$veeamInfluxDB" -u "$veeamInfluxDBUser:$veeamInfluxDBPassword" --data-binary "veeam_office365_objectstorage,objectname=$objectName,type=$type,bucketname=$bucketname,servicePoint=$servicePoint,customRegionId=$customRegionId,objectStorageEncryptionEnabled=$objectStorageEncryptionEnabled usedSpaceGB=$usedSpaceGB"
+        curl -i -XPOST "$veeamInfluxDBURL:$veeamInfluxDBPort/api/v2/write?org=$veeamInfluxDBOrg&bucket=$veeamInfluxDBBucket&precision=s" -H "Authorization: Token $veeamInfluxDBToken" --data-binary "veeam_office365_objectstorage,objectname=$objectName,type=$type,bucketname=$bucketname,servicePoint=$servicePoint,customRegionId=$customRegionId,objectStorageEncryptionEnabled=$objectStorageEncryptionEnabled usedSpaceGB=$usedSpaceGB"
     fi
     arrayrepo=$arrayrepo+1
 done
 
 
 ##
-# Veeam Backup for Microsoft Office 365 Backup Proxies. This part will check the Name and Threads Number of the Backup Proxies
+# Veeam Backup for Microsoft 365 Backup Proxies. This part will check the Name and Threads Number of the Backup Proxies
 ##
 veeamVBOUrl="$veeamRestServer:$veeamRestPort/v5/Proxies"
 veeamProxyUrl=$(curl -X GET --header "Accept:application/json" --header "Authorization:Bearer $veeamBearer" "$veeamVBOUrl" 2>&1 -k --silent)
@@ -145,12 +145,12 @@ for id in $(echo "$veeamProxyUrl" | jq -r '.[].id'); do
     status=$(echo "$veeamProxyUrl" | jq --raw-output ".[$arrayprox].status")
     
     #echo "veeam_office365_proxies,proxies=$hostName,status=$status threadsNumber=$threadsNumber"
-    curl -i -XPOST "$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=s&db=$veeamInfluxDB" -u "$veeamInfluxDBUser:$veeamInfluxDBPassword" --data-binary "veeam_office365_proxies,proxies=$hostName,status=$status threadsNumber=$threadsNumber"
+    curl -i -XPOST "$veeamInfluxDBURL:$veeamInfluxDBPort/api/v2/write?org=$veeamInfluxDBOrg&bucket=$veeamInfluxDBBucket&precision=s" -H "Authorization: Token $veeamInfluxDBToken" --data-binary "veeam_office365_proxies,proxies=$hostName,status=$status threadsNumber=$threadsNumber"
     arrayprox=$arrayprox+1
 done
 
 ##
-# Veeam Backup for Microsoft Office 365 Backup Jobs. This part will check the different Jobs, and the Job Sessions per every Job
+# Veeam Backup for Microsoft 365 Backup Jobs. This part will check the different Jobs, and the Job Sessions per every Job
 ##
 veeamVBOUrl="$veeamRestServer:$veeamRestPort/v5/Jobs"
 veeamJobsUrl=$(curl -X GET --header "Accept:application/json" --header "Authorization:Bearer $veeamBearer" "$veeamVBOUrl" 2>&1 -k --silent)
@@ -190,7 +190,7 @@ for id in $(echo "$veeamJobsUrl" | jq -r '.[].id'); do
       bottleneck=$(echo "$veeamJobSessionsUrl" | jq --raw-output ".results[$arrayJobsSessions].statistics.bottleneck")
       
       #echo "veeam_office365_jobs,veeamjobname=$nameJob,bottleneck=$bottleneck totalDuration=$totalDuration,status=$jobStatus,processingRate=$processingRate,readRate=$readRate,writeRate=$writeRate,transferredData=$transferredData,processedObjects=$processedObjects $endTimeUnix"
-      curl -i -XPOST "$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=s&db=$veeamInfluxDB" -u "$veeamInfluxDBUser:$veeamInfluxDBPassword" --data-binary "veeam_office365_jobs,veeamjobname=$nameJob,bottleneck=$bottleneck totalDuration=$totalDuration,status=$jobStatus,processingRate=$processingRate,readRate=$readRate,writeRate=$writeRate,transferredData=$transferredData,processedObjects=$processedObjects $endTimeUnix"
+      curl -i -XPOST "$veeamInfluxDBURL:$veeamInfluxDBPort/api/v2/write?org=$veeamInfluxDBOrg&bucket=$veeamInfluxDBBucket&precision=s" -H "Authorization: Token $veeamInfluxDBToken" --data-binary "veeam_office365_jobs,veeamjobname=$nameJob,bottleneck=$bottleneck totalDuration=$totalDuration,status=$jobStatus,processingRate=$processingRate,readRate=$readRate,writeRate=$writeRate,transferredData=$transferredData,processedObjects=$processedObjects $endTimeUnix"
     if [[ $arrayJobsSessions = "1000" ]]; then
         break
         else
@@ -201,7 +201,7 @@ for id in $(echo "$veeamJobsUrl" | jq -r '.[].id'); do
 done
 
 ##
-# Veeam Backup for Microsoft Office 365 Restore Sessions. This part will check the Number of Restore Sessions
+# Veeam Backup for Microsoft 365 Restore Sessions. This part will check the Number of Restore Sessions
 ##
 veeamVBOUrl="$veeamRestServer:$veeamRestPort/v5/RestoreSessions"
 veeamRestoreSessionsUrl=$(curl -X GET --header "Accept:application/json" --header "Authorization:Bearer $veeamBearer" "$veeamVBOUrl" 2>&1 -k --silent)
@@ -224,6 +224,6 @@ for id in $(echo "$veeamRestoreSessionsUrl" | jq -r '.results[].id'); do
     [[ ! -z "$itemsSuccess" ]] || itemsSuccess="0"
 
     #echo "veeam_office365_restoresession,organization=$organization,veeamjobname=$nameJob,type=$type,result=$result,initiatedBy=$initiatedBy itemsProcessed=$itemsProcessed,itemsSuccess=$itemsSuccess $endTimeUnix"
-    curl -i -XPOST "$veeamInfluxDBURL:$veeamInfluxDBPort/write?precision=s&db=$veeamInfluxDB" -u "$veeamInfluxDBUser:$veeamInfluxDBPassword" --data-binary "veeam_office365_restoresession,organization=$organization,veeamjobname=$nameJob,type=$type,result=$result,initiatedBy=$initiatedBy itemsProcessed=$itemsProcessed,itemsSuccess=$itemsSuccess $endTimeUnix"
+    curl -i -XPOST "$veeamInfluxDBURL:$veeamInfluxDBPort/api/v2/write?org=$veeamInfluxDBOrg&bucket=$veeamInfluxDBBucket&precision=s" -H "Authorization: Token $veeamInfluxDBToken" --data-binary "veeam_office365_restoresession,organization=$organization,veeamjobname=$nameJob,type=$type,result=$result,initiatedBy=$initiatedBy itemsProcessed=$itemsProcessed,itemsSuccess=$itemsSuccess $endTimeUnix"
     arrayRestoreSessions=$arrayRestoreSessions+1
 done
