@@ -167,11 +167,6 @@ for id in $(echo "$veeamRepoUrl" | jq -r '.[].id'); do
 			;;
 			*) 
 		esac
-			
-       # bucketname=$(echo "$veeamObjectUrl" | jq --raw-output ".bucket.name" | awk '{gsub(/ /,"\\ ");print}')
-       # servicePoint=$(echo "$veeamObjectUrl" | jq --raw-output ".bucket.servicePoint" | awk '{gsub(/ /,"\\ ");print}')
-       # customRegionId=$(echo "$veeamObjectUrl" | jq --raw-output ".bucket.customRegionId" | awk '{gsub(/ /,"\\ ");print}')
-
 		veeamDataload="veeam_office365_objectstorage,objectname=$objectName,type=$type,bucketname=$bucketname,servicePoint=$servicePoint,customRegionId=$customRegionId,objectStorageEncryptionEnabled=$objectStorageEncryptionEnabled usedSpaceGB=$usedSpaceGB"
 		if $debug; then echo "Dataload to write: $veeamDataload"; fi
 		curl -i -XPOST "$veeamInfluxPostURL" -H "$veeamInfludPostAuth" --data-binary "$veeamDataload"
